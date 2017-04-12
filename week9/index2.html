@@ -1,0 +1,86 @@
+<html lang="en">
+<head>
+	<title>I'm Learning D3</title>
+	<script src="https://d3js.org/d3.v4.js" charset="utf-8"></script>
+</head>
+<body>
+	<!-- Location for page elements. -->
+	<script>
+	// Our D3 code will go here.
+	var ratData = [];// Rat data!
+
+	d3.csv("data/rat-data.csv",function(d){return{city:d.city,rats:+d.rats};},
+		function(error,rows){ratData=rows;
+			console.log(ratData);
+			createVisulization();});
+
+
+function createVisulization(){
+	// Width and height of SVG
+	var w = 150;
+	var h = 100;
+	// Get length of dataset
+var arrayLength = ratData.length; // length of dataset
+var maxValue = d3.max(ratData, function(d) { return +d.rats;} ); // get max value of our dataset
+var x_axisLength = 100; // length of x-axis in our layout
+var y_axisLength = 100; // length of y-axis in our layout
+
+	//Create SVG element
+	var svg = d3.select("body")
+		.append("svg")
+		.attr("width", w)
+		.attr("height", h);
+
+	var tooltip = d3.select("body")
+	.append("div")
+	.style("position", "absolute")
+	.style("font-family", "'Open Sans', sans-serif")
+	.style("font-size", "12px")
+	.style("z-index", "10")
+	.style("visibility", "hidden");
+
+	// Select and generate rectangle elements
+	svg.selectAll( "rect" )
+		.data( ratData )
+		.enter()
+		.append("rect")
+		.attr( "x", function(d,i){
+			return i*25 + 30; // Set x coordinate of rectangle to index of data value (i)*25.
+			// Add 30 to account for our left margin.
+		}) 
+		.attr( "y", function(d){return h-d.rats;})
+		.attr( "width", 20 )
+		.attr( "height", function(d){return d.rats;})
+		.attr( "fill", "steelblue")
+		.on("mouseover", function(d){
+		return tooltip.style("visibility", "visible").text(d.city + ": " + d.rats);
+	})
+	.on("mousemove", function(d){
+		return tooltip.style("top", (event.pageY-10)+"px").style("left",(event.pageX+10)+"px").text(d.city + ": " + d.rats);
+	})
+	.on("mouseout", function(d){
+		return tooltip.style("visibility", "hidden");
+	});
+		// Create y-axis
+svg.append("line")
+	.attr("x1", 30)
+	.attr("y1", 0)
+	.attr("x2", 30)
+	.attr("y2", 100)
+	.attr("stroke-width", 2)
+	.attr("stroke", "black");
+
+// Create x-axis
+svg.append("line")
+	.attr("x1", 30)
+	.attr("y1", 100)
+	.attr("x2", 130)
+	.attr("y2", 100)
+	.attr("stroke-width", 6)
+	.attr("stroke", "black");
+
+
+}
+</script>	
+</body>
+</html>
